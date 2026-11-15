@@ -40,7 +40,7 @@ main { max-width: 960px; margin: 0 auto; }
 .cartao { background: #fff; border: 1px solid #d1d5db; border-radius: 14px; overflow: hidden; display: flex; flex-direction: column; }
 .foto { aspect-ratio: 4 / 3; background: #e0e7ff; display: grid; place-items: center; }
 .foto img { width: 100%; height: 100%; object-fit: cover; }
-.foto-vazia { font-size: 2.2rem; font-weight: 800; color: #1e3a8a; }
+.foto-vazia { display: flex; flex-direction: column; align-items: center; gap: 4px; font-size: .85rem; font-weight: 600; color: #1e3a8a; }
 .cartao-esgotado .foto { background: #e5e7eb; opacity: .6; }
 .cartao-corpo { padding: 10px; display: flex; flex-direction: column; gap: 6px; flex: 1; }
 .cartao-corpo h2 { font-size: 1rem; font-weight: 600; }
@@ -48,6 +48,7 @@ main { max-width: 960px; margin: 0 auto; }
 .selo { display: inline-flex; align-items: center; gap: 4px; font-size: .85rem; font-weight: 700; padding: 3px 8px; border-radius: 6px; width: fit-content; }
 .selo-ok { background: #dcfce7; color: #14532d; }
 .selo-nao { background: #fee2e2; color: #7f1d1d; }
+.selo-pouco { background: #fef3c7; color: #78350f; }
 .indisponivel { margin: auto 0 0; font-size: .85rem; color: #374151; text-align: center; padding: 10px 0; border-top: 1px dashed #d1d5db; }
 .paginacao { display: flex; gap: 12px; align-items: center; justify-content: center; padding: 8px 16px 16px; }
 .rodape { padding: 16px; font-size: .85rem; color: #374151; border-top: 1px solid #e5e7eb; background: #fff; }

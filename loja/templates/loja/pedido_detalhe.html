@@ -14,7 +14,7 @@
     <div><dt>Estoque</dt><dd>{% if linha.estoque_antes is not None %}{{ linha.estoque_antes }} → {% endif %}{{ linha.item.produto.quantidade_estoque }} unidade{{ linha.item.produto.quantidade_estoque|pluralize }}</dd></div>
   {% endfor %}
   <div><dt>Cliente</dt><dd>{{ pedido.cliente_nome }}</dd></div>
-  <div><dt>Telefone</dt><dd>{{ pedido.cliente_telefone }}</dd></div>
+  <div><dt>Telefone</dt><dd>{{ pedido.cliente_telefone|default:"Não informado (balcão)" }}</dd></div>
   <div><dt>Entrega</dt><dd>{{ pedido.endereco_entrega|default:"Retirada" }}</dd></div>
   <div><dt>Pagamento</dt><dd>{{ pedido.get_forma_pagamento_display }} · R$ {{ pedido.valor_total|floatformat:2 }}</dd></div>
   <div><dt>Status</dt><dd><span class="status status-{{ pedido.status }}">● {{ pedido.get_status_display }}</span></dd></div>
@@ -34,6 +34,7 @@
 </form>
 {% endif %}
 <div class="secao acoes">
+  {% if link_cliente %}<a class="btn btn-whats" href="{{ link_cliente }}" target="_blank" rel="noopener">Enviar resumo ao cliente no WhatsApp</a>{% endif %}
   <a class="btn btn-primario" href="{% url 'loja:pedidos' %}">Ver pedidos</a>
   <a class="btn btn-contorno" href="{% url 'loja:novo_pedido' %}">Novo pedido</a>
 </div>

@@ -74,7 +74,8 @@ class Pedido(models.Model):
         CARTAO = "cartao", "Cartão"
 
     cliente_nome = models.CharField(max_length=100)
-    cliente_telefone = models.CharField(max_length=20)
+    # Opcional desde a 1ª validação: vendas no balcão não têm telefone.
+    cliente_telefone = models.CharField(max_length=20, blank=True)
     endereco_entrega = models.CharField(max_length=255, blank=True)
     forma_pagamento = models.CharField(max_length=10, choices=FormaPagamento.choices)
     status = models.CharField(max_length=12, choices=Status.choices, default=Status.NOVO)
