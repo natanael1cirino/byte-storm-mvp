@@ -1,0 +1,6 @@
+<div class="campo{% if campo.errors %} campo-erro{% endif %}">
+  <label for="{{ campo.id_for_label }}">{{ campo.label }} {% if campo.field.required %}<span class="obrig">(obrigatório)</span>{% else %}<span class="opc">(opcional)</span>{% endif %}</label>
+  {{ campo }}
+  {% if campo.help_text %}<p class="dica">{{ campo.help_text }}</p>{% endif %}
+  {% for erro in campo.errors %}<p class="msg-erro" id="{{ campo.auto_id }}_erro"><span aria-hidden="true">⚠</span> {{ erro }}</p>{% endfor %}
+</div>

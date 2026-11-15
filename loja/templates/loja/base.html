@@ -1,0 +1,28 @@
+{% load static %}<!doctype html>
+<html lang="pt-BR">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="theme-color" content="#0f172a">
+  <title>{% block titulo %}{{ LOJA_NOME }}{% endblock %}</title>
+  <link rel="manifest" href="{% static 'loja/manifest.webmanifest' %}">
+  <link rel="icon" href="{% static 'loja/icone.svg' %}" type="image/svg+xml">
+  <link rel="stylesheet" href="{% static 'loja/app.css' %}">
+  <script src="{% static 'loja/pwa.js' %}" defer></script>
+</head>
+<body class="{% block body_class %}{% endblock %}">
+  <a class="pular" href="#conteudo">Pular para o conteúdo</a>
+  {% block topo %}{% endblock %}
+  <main id="conteudo" tabindex="-1">
+    {% if messages %}
+      {% for message in messages %}
+        <div class="alerta alerta-{{ message.tags }}" role="alert">
+          <span class="alerta-icone" aria-hidden="true">{% if message.tags == 'error' %}!{% else %}✓{% endif %}</span>
+          <p>{{ message }}</p>
+        </div>
+      {% endfor %}
+    {% endif %}
+    {% block conteudo %}{% endblock %}
+  </main>
+</body>
+</html>

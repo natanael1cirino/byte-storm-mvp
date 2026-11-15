@@ -1,0 +1,11 @@
+{% extends "loja/painel_base.html" %}
+{% block titulo %}{% if produto %}Editar{% else %}Cadastrar{% endif %} produto · {{ LOJA_NOME }}{% endblock %}
+{% block titulo_painel %}{% if produto %}Editar produto{% else %}Cadastrar produto{% endif %}{% endblock %}
+{% block conteudo %}
+<form method="post" enctype="multipart/form-data" class="formulario secao" novalidate>
+  {% csrf_token %}
+  {% for campo in form %}{% include "loja/_campo.html" %}{% endfor %}
+  <button type="submit" class="btn btn-primario">Salvar produto</button>
+  <a class="cancelar" href="{% url 'loja:produtos' %}">Cancelar</a>
+</form>
+{% endblock %}

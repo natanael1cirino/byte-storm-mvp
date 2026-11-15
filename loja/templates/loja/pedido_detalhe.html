@@ -1,0 +1,40 @@
+{% extends "loja/painel_base.html" %}
+{% block titulo %}Pedido nº {{ pedido.numero }} · {{ LOJA_NOME }}{% endblock %}
+{% block titulo_painel %}Pedido nº {{ pedido.numero }}{% endblock %}
+{% block conteudo %}
+{% if recem_criado %}
+  <div class="alerta alerta-success" role="alert">
+    <span class="alerta-icone" aria-hidden="true">✓</span>
+    <div><h2>Pedido registrado</h2><p>O pedido foi salvo e o estoque foi atualizado automaticamente.</p></div>
+  </div>
+{% endif %}
+<dl class="resumo">
+  {% for linha in itens %}
+    <div><dt>Produto</dt><dd>{{ linha.item.quantidade }} × {{ linha.item.produto.nome }}</dd></div>
+    <div><dt>Estoque</dt><dd>{% if linha.estoque_antes is not None %}{{ linha.estoque_antes }} → {% endif %}{{ linha.item.produto.quantidade_estoque }} unidade{{ linha.item.produto.quantidade_estoque|pluralize }}</dd></div>
+  {% endfor %}
+  <div><dt>Cliente</dt><dd>{{ pedido.cliente_nome }}</dd></div>
+  <div><dt>Telefone</dt><dd>{{ pedido.cliente_telefone }}</dd></div>
+  <div><dt>Entrega</dt><dd>{{ pedido.endereco_entrega|default:"Retirada" }}</dd></div>
+  <div><dt>Pagamento</dt><dd>{{ pedido.get_forma_pagamento_display }} · R$ {{ pedido.valor_total|floatformat:2 }}</dd></div>
+  <div><dt>Status</dt><dd><span class="status status-{{ pedido.status }}">● {{ pedido.get_status_display }}</span></dd></div>
+</dl>
+{% for linha in itens %}{% if linha.item.produto.esgotado %}
+  <div class="aviso" role="status"><span aria-hidden="true">⚠</span> {{ linha.item.produto.nome }} agora está esgotado e aparece assim no catálogo.</div>
+{% endif %}{% endfor %}
+{% if proximos_status %}
+<form method="post" action="{% url 'loja:pedido_status' pedido.pk %}" class="secao formulario">
+  {% csrf_token %}
+  <p class="rotulo">Mudar status para:</p>
+  <div class="botoes-status">
+    {% for valor, rotulo in proximos_status %}
+      <button type="submit" name="status" value="{{ valor }}" class="btn {% if valor == 'cancelado' %}btn-perigo{% else %}btn-contorno{% endif %}">{{ rotulo }}</button>
+    {% endfor %}
+  </div>
+</form>
+{% endif %}
+<div class="secao acoes">
+  <a class="btn btn-primario" href="{% url 'loja:pedidos' %}">Ver pedidos</a>
+  <a class="btn btn-contorno" href="{% url 'loja:novo_pedido' %}">Novo pedido</a>
+</div>
+{% endblock %}

@@ -1,0 +1,28 @@
+{% extends "loja/painel_base.html" %}
+{% block titulo %}Novo pedido · {{ LOJA_NOME }}{% endblock %}
+{% block titulo_painel %}Novo pedido{% endblock %}
+{% block conteudo %}
+{% if erro_estoque %}
+  <div class="alerta alerta-error" role="alert" tabindex="-1" id="alerta-estoque">
+    <span class="alerta-icone" aria-hidden="true">!</span>
+    <div>
+      <h2>Estoque insuficiente</h2>
+      <p>Há <strong>{{ erro_estoque.disponivel }} unidade{{ erro_estoque.disponivel|pluralize }}</strong> disponíve{{ erro_estoque.disponivel|pluralize:"l,is" }} de <strong>{{ erro_estoque.produto.nome }}</strong>. Ajuste a quantidade para continuar. Nada foi salvo.</p>
+    </div>
+  </div>
+{% endif %}
+<form method="post" class="formulario secao" novalidate>
+  {% csrf_token %}
+  {% include "loja/_campo.html" with campo=form.produto %}
+  {% include "loja/_campo.html" with campo=form.quantidade %}
+  {% include "loja/_campo.html" with campo=form.cliente_nome %}
+  {% include "loja/_campo.html" with campo=form.cliente_telefone %}
+  {% include "loja/_campo.html" with campo=form.endereco_entrega %}
+  <fieldset class="campo opcoes">
+    <legend>Forma de pagamento <span class="obrig">(obrigatório)</span></legend>
+    {% for opcao in form.forma_pagamento %}<label class="opcao">{{ opcao.tag }} {{ opcao.choice_label }}</label>{% endfor %}
+  </fieldset>
+  <button type="submit" class="btn btn-primario btn-grande">{% if erro_estoque %}Corrigir e salvar pedido{% else %}Salvar pedido{% endif %}</button>
+  <a class="cancelar" href="{% url 'loja:pedidos' %}">Cancelar e voltar aos pedidos</a>
+</form>
+{% endblock %}

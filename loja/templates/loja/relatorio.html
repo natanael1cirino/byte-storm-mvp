@@ -1,0 +1,24 @@
+{% extends "loja/painel_base.html" %}
+{% block titulo %}Relatório · {{ LOJA_NOME }}{% endblock %}
+{% block titulo_painel %}Relatório mensal{% endblock %}
+{% block conteudo %}
+<form method="get" class="formulario secao linha-form">
+  <div class="campo"><label for="mes">Mês</label><input id="mes" name="mes" type="number" min="1" max="12" value="{{ mes }}" inputmode="numeric"></div>
+  <div class="campo"><label for="ano">Ano</label><input id="ano" name="ano" type="number" min="2024" max="2100" value="{{ ano }}" inputmode="numeric"></div>
+  <button class="btn btn-contorno" type="submit">Ver</button>
+</form>
+<section class="secao">
+  <div class="indicadores">
+    <div class="indicador"><strong>R$ {{ dados.faturamento|floatformat:2 }}</strong><span>faturamento (pedidos entregues)</span></div>
+    <div class="indicador"><strong>{{ dados.quantidade_pedidos }}</strong><span>pedidos entregues</span></div>
+  </div>
+  <h2>Mais vendidos</h2>
+  <ol class="lista">
+    {% for linha in dados.mais_vendidos %}
+      <li><span>{{ linha.produto__nome }}</span><span>{{ linha.unidades }} un. · R$ {{ linha.valor|floatformat:2 }}</span></li>
+    {% empty %}
+      <li class="vazio">Nenhum pedido entregue neste mês.</li>
+    {% endfor %}
+  </ol>
+</section>
+{% endblock %}

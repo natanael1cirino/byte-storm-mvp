@@ -1,0 +1,22 @@
+{% extends "loja/painel_base.html" %}
+{% block titulo %}Pedidos · {{ LOJA_NOME }}{% endblock %}
+{% block titulo_painel %}Pedidos{% endblock %}
+{% block conteudo %}
+<nav class="chips" aria-label="Filtrar por status">
+  <a class="chip {% if not status_atual %}ativo{% endif %}" href="?">Todos</a>
+  {% for valor, rotulo in status_opcoes %}
+    <a class="chip {% if status_atual == valor %}ativo{% endif %}" href="?status={{ valor }}">{{ rotulo }}</a>
+  {% endfor %}
+</nav>
+<ul class="lista secao">
+  {% for p in pedidos %}
+    <li><a href="{% url 'loja:pedido_detalhe' p.pk %}">
+      <span><strong>Nº {{ p.numero }} · {{ p.cliente_nome }}</strong><br>
+        {% for i in p.itens.all %}{{ i.quantidade }} × {{ i.produto.nome }}{% if not forloop.last %}, {% endif %}{% endfor %} · R$ {{ p.valor_total|floatformat:2 }}</span>
+      <span class="status status-{{ p.status }}">{{ p.get_status_display }}</span>
+    </a></li>
+  {% empty %}
+    <li class="vazio">Nenhum pedido com esse status.</li>
+  {% endfor %}
+</ul>
+{% endblock %}
