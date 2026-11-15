@@ -93,6 +93,39 @@ def test_status_segue_fluxo_e_bloqueia_retrocesso(socio, fone):
 
 
 @pytest.mark.django_db
+def test_pedido_pix_precisa_estar_pago_antes_da_entrega(socio, fone):
+    pedido = registrar(socio, [ItemSolicitado(fone.pk, 1)])  # forma de pagamento: Pix
+
+    with pytest.raises(services.TransicaoInvalida):
+        services.alterar_status(pedido, Pedido.Status.EM_ENTREGA)
+
+
+@pytest.mark.django_db
+def test_pedido_em_dinheiro_pode_sair_para_entrega_sem_estar_pago(socio, fone):
+    pedido = registrar(socio, [ItemSolicitado(fone.pk, 1)], forma_pagamento=Pedido.FormaPagamento.DINHEIRO)
+
+    pedido = services.alterar_status(pedido, Pedido.Status.EM_ENTREGA)
+
+    assert pedido.status == Pedido.Status.EM_ENTREGA
+
+
+@pytest.mark.django_db
+def test_relatorio_nao_mistura_produtos_com_mesmo_nome(socio, categoria):
+    a = Produto.objects.create(nome="Cabo USB-C", preco=Decimal("20.00"), quantidade_estoque=5, categoria=categoria)
+    b = Produto.objects.create(nome="Cabo USB-C", preco=Decimal("30.00"), quantidade_estoque=5, categoria=categoria)
+    for produto, qtd in ((a, 2), (b, 1)):
+        pedido = registrar(socio, [ItemSolicitado(produto.pk, qtd)])
+        for status in (Pedido.Status.PAGO, Pedido.Status.EM_ENTREGA, Pedido.Status.ENTREGUE):
+            pedido = services.alterar_status(pedido, status)
+
+    hoje = timezone.localdate()
+    linhas = services.relatorio_mensal(hoje.year, hoje.month)["mais_vendidos"]
+
+    assert len(linhas) == 2
+    assert [linha["unidades"] for linha in linhas] == [2, 1]
+
+
+@pytest.mark.django_db
 def test_pedido_sem_itens_e_recusado(socio):
     with pytest.raises(ValueError):
         registrar(socio, [])

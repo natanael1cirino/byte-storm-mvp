@@ -159,7 +159,7 @@ def pedido_detalhe(request, pk):
     itens = []
     for item in pedido.itens.all():
         itens.append({"item": item, "estoque_antes": antes.get(str(item.produto_id))})
-    proximos = services.TRANSICOES.get(pedido.status, set())
+    proximos = services.transicoes_permitidas(pedido)
     return render(request, "loja/pedido_detalhe.html", {
         "pedido": pedido,
         "itens": itens,
