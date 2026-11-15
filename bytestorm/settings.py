@@ -17,6 +17,10 @@ def env_bool(nome, padrao=False):
 DEBUG = env_bool("DJANGO_DEBUG", True)
 SECRET_KEY = os.environ.get("DJANGO_SECRET_KEY", "dev-inseguro-troque-em-producao")
 ALLOWED_HOSTS = [h for h in os.environ.get("DJANGO_ALLOWED_HOSTS", "localhost,127.0.0.1").split(",") if h]
+# Origens HTTPS confiáveis para o CSRF quando o app roda atrás de proxy ou túnel (ex.: https://*.lhr.life).
+CSRF_TRUSTED_ORIGINS = [o for o in os.environ.get("DJANGO_CSRF_TRUSTED_ORIGINS", "").split(",") if o]
+if env_bool("DJANGO_ATRAS_DE_PROXY_HTTPS"):
+    SECURE_PROXY_SSL_HEADER = ("HTTP_X_FORWARDED_PROTO", "https")
 
 INSTALLED_APPS = [
     "django.contrib.admin",
