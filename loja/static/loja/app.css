@@ -65,7 +65,7 @@ main { max-width: 960px; margin: 0 auto; }
 .indicador { background: #fff; border: 1px solid #d1d5db; border-radius: 12px; padding: 12px; color: inherit; text-decoration: none; display: flex; flex-direction: column; }
 .indicador strong { font-size: 1.5rem; }
 .lista { list-style: none; margin: 12px 0 0; padding: 0; display: grid; gap: 8px; }
-.lista li > a, .lista li > span:first-child:not(:only-child), ol.lista li { background: #fff; border: 1px solid #d1d5db; border-radius: 12px; padding: 12px;
+.lista li > a, ol.lista li { background: #fff; border: 1px solid #d1d5db; border-radius: 12px; padding: 12px;
   display: flex; justify-content: space-between; align-items: center; gap: 12px; color: inherit; text-decoration: none; min-height: 48px; }
 .status { font-size: .85rem; font-weight: 700; padding: 3px 8px; border-radius: 6px; background: #dbeafe; color: #1e3a8a; white-space: nowrap; }
 .status-entregue { background: #dcfce7; color: #14532d; }
