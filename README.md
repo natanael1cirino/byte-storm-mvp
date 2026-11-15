@@ -9,6 +9,10 @@ produto como esgotado quando chega a zero.
 
 > Todos os dados de demonstração deste repositório são **fictícios**.
 
+**Em produção:** https://natanaelcirino.pythonanywhere.com/ (catálogo público; painel em `/painel/`).
+A disponibilidade é verificada a cada 30 minutos pelo workflow
+[Monitoramento de disponibilidade](.github/workflows/monitoramento.yml).
+
 ## Funcionalidades
 
 | Requisito | O que faz |
@@ -71,9 +75,18 @@ O workflow `.github/workflows/ci.yml` roda lint, verificação de migrações, t
 ## Implantação
 
 Configuração por variáveis de ambiente (ver `.env.exemplo`); nenhuma chave ou senha fica no código.
-Hospedagem prevista: PythonAnywhere com MySQL. Passos: `pip install -r requirements.txt mysqlclient`,
-`python manage.py migrate`, `python manage.py createcachetable`, `python manage.py collectstatic` e
-configuração do WSGI.
+
+Publicado no **PythonAnywhere** (plano gratuito, Python 3.12):
+
+1. `git clone` do repositório e virtualenv com `pip install -r requirements.txt`.
+2. Arquivo `~/.bytestorm.env` (fora do repositório, permissão 600) com `DJANGO_SECRET_KEY`, `DJANGO_DEBUG=false`,
+   `DJANGO_ALLOWED_HOSTS`, `DJANGO_CSRF_TRUSTED_ORIGINS` e `DJANGO_ATRAS_DE_PROXY_HTTPS=true`.
+3. `python manage.py migrate`, `createcachetable` e `collectstatic`.
+4. WSGI do PythonAnywhere carregando o `.bytestorm.env` e `bytestorm.wsgi`; arquivos estáticos mapeados em
+   `/static/` → `staticfiles/`; HTTPS forçado.
+
+No plano gratuito o banco de produção é SQLite em disco persistente (um único processo web). O MySQL 8
+continua sendo usado no pipeline de CI e pode ser ativado em produção com `DB_ENGINE=mysql`.
 
 ## Autor
 
