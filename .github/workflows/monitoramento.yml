@@ -1,0 +1,41 @@
+name: Monitoramento de disponibilidade
+
+# Verifica a cada 30 minutos se o MVP em produção está no ar.
+# Se uma verificação falhar, a execução fica vermelha (DOWN) e o GitHub
+# envia e-mail para o dono do repositório.
+on:
+  schedule:
+    - cron: "*/30 * * * *"
+  workflow_dispatch:
+
+jobs:
+  verificar:
+    name: Verificar site em produção
+    runs-on: ubuntu-latest
+    env:
+      SITE: https://natanaelcirino.pythonanywhere.com
+    steps:
+      - name: Checar páginas principais
+        run: |
+          set -u
+          falhas=0
+          echo "## Disponibilidade do Byte Storm" >> "$GITHUB_STEP_SUMMARY"
+          echo "" >> "$GITHUB_STEP_SUMMARY"
+          echo "| Página | HTTP | Tempo (s) | Status |" >> "$GITHUB_STEP_SUMMARY"
+          echo "|---|---|---|---|" >> "$GITHUB_STEP_SUMMARY"
+          for caminho in "/" "/painel/entrar/" "/static/loja/app.css"; do
+            resultado=$(curl -s -o resposta.html -w "%{http_code} %{time_total}" --max-time 30 "$SITE$caminho" || echo "000 30")
+            codigo=${resultado%% *}
+            tempo=${resultado##* }
+            status="UP"
+            if [ "$codigo" != "200" ]; then status="DOWN"; falhas=$((falhas+1)); fi
+            if [ "$caminho" = "/" ] && ! grep -q "Byte Storm" resposta.html; then status="DOWN (conteúdo)"; falhas=$((falhas+1)); fi
+            echo "| \`$caminho\` | $codigo | $tempo | $status |" >> "$GITHUB_STEP_SUMMARY"
+            echo "$caminho -> $codigo em ${tempo}s ($status)"
+          done
+          echo "" >> "$GITHUB_STEP_SUMMARY"
+          echo "Verificado em $(date -u '+%d/%m/%Y %H:%M') UTC." >> "$GITHUB_STEP_SUMMARY"
+          if [ "$falhas" -gt 0 ]; then
+            echo "::error::Site fora do ar ou com erro em $falhas verificação(ões)."
+            exit 1
+          fi
