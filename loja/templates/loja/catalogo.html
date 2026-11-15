@@ -34,7 +34,7 @@
     <li class="cartao {% if p.esgotado %}cartao-esgotado{% endif %}">
       <div class="foto">
         {% if p.foto %}<img src="{{ p.foto.url }}" alt="{{ p.nome }}" loading="lazy" width="400" height="300">
-        {% else %}<span class="foto-vazia" aria-hidden="true">{{ p.categoria.nome|slice:":1" }}</span>{% endif %}
+        {% else %}<span class="foto-vazia"><svg aria-hidden="true" width="36" height="36" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M4 8h3l2-3h6l2 3h3v11H4z"/><circle cx="12" cy="13" r="3.5"/></svg>Foto em breve</span>{% endif %}
       </div>
       <div class="cartao-corpo">
         <h2>{{ p.nome }}</h2>
@@ -43,7 +43,11 @@
           <span class="selo selo-nao">✖ Esgotado</span>
           <p class="indisponivel">Indisponível no momento</p>
         {% else %}
-          <span class="selo selo-ok">✔ Disponível</span>
+          {% if p.quantidade_estoque <= 3 %}
+            <span class="selo selo-pouco">⚠ Últimas {{ p.quantidade_estoque }} unidade{{ p.quantidade_estoque|pluralize }}</span>
+          {% else %}
+            <span class="selo selo-ok">✔ Disponível · {{ p.quantidade_estoque }} un.</span>
+          {% endif %}
           <a class="btn btn-whats" href="{{ p.link_whatsapp }}" target="_blank" rel="noopener">Comprar pelo WhatsApp</a>
         {% endif %}
       </div>

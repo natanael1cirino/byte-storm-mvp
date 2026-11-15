@@ -68,19 +68,35 @@ class ProdutoComEstoqueField(forms.ModelChoiceField):
         return f"{obj.nome} — {obj.quantidade_estoque} em estoque"
 
 
+class SelectComEstoque(forms.Select):
+    """Anexa o estoque de cada produto à opção (data-estoque), para a tela travar a quantidade."""
+
+    def create_option(self, name, value, label, selected, index, subindex=None, attrs=None):
+        opcao = super().create_option(name, value, label, selected, index, subindex, attrs)
+        instancia = getattr(value, "instance", None)
+        if instancia is not None:
+            opcao["attrs"]["data-estoque"] = instancia.quantidade_estoque
+        return opcao
+
+
 class NovoPedidoForm(forms.Form):
     produto = ProdutoComEstoqueField(
         queryset=Produto.objects.ativos().filter(esgotado=False),
         label="Produto",
         empty_label="Selecione o produto",
+        widget=SelectComEstoque(attrs={"data-controla-quantidade": "id_quantidade"}),
     )
     quantidade = forms.IntegerField(
         label="Quantidade", min_value=1, initial=1,
+        help_text="O máximo é o estoque do produto escolhido.",
         widget=forms.NumberInput(attrs={"inputmode": "numeric", "min": "1"}),
     )
-    cliente_nome = forms.CharField(label="Nome do cliente", max_length=100)
+    cliente_nome = forms.CharField(
+        label="Nome do cliente", max_length=100, help_text="Na venda no balcão, pode usar “Cliente balcão”.",
+    )
     cliente_telefone = forms.RegexField(
-        label="Telefone (WhatsApp)", max_length=20, regex=r"^[0-9()+\-\s]{8,20}$",
+        label="Telefone (WhatsApp)", max_length=20, regex=r"^[0-9()+\-\s]{8,20}$", required=False,
+        help_text="Opcional: deixe vazio em venda no balcão.",
         error_messages={"invalid": "Informe um telefone com DDD, usando apenas números, espaços, parênteses ou hífen."},
         widget=forms.TextInput(attrs={"inputmode": "tel", "autocomplete": "off"}),
     )

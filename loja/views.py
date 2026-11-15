@@ -152,6 +152,25 @@ def novo_pedido(request):
     return render(request, "loja/novo_pedido.html", contexto, status=422 if erro_estoque else 200)
 
 
+def link_whatsapp_cliente(pedido):
+    """Link para enviar o resumo do pedido ao WhatsApp do cliente (sugestão da 1ª validação).
+
+    Retorna None quando o pedido não tem telefone (venda no balcão).
+    """
+    digitos = "".join(c for c in pedido.cliente_telefone if c.isdigit())
+    if len(digitos) < 10:
+        return None
+    if len(digitos) <= 11:
+        digitos = "55" + digitos
+    linhas = [f"Olá, {pedido.cliente_nome}! Seu pedido nº {pedido.numero} na {settings.LOJA_NOME}:"]
+    for item in pedido.itens.all():
+        linhas.append(f"- {item.quantidade} × {item.produto.nome}")
+    total = f"{pedido.valor_total:.2f}".replace(".", ",")
+    linhas.append(f"Total: R$ {total} ({pedido.get_forma_pagamento_display()})")
+    linhas.append(f"Status: {pedido.get_status_display()}")
+    return f"https://wa.me/{digitos}?text={quote(chr(10).join(linhas))}"
+
+
 @login_required
 def pedido_detalhe(request, pk):
     pedido = get_object_or_404(Pedido.objects.prefetch_related("itens__produto"), pk=pk)
@@ -164,6 +183,7 @@ def pedido_detalhe(request, pk):
         "pedido": pedido,
         "itens": itens,
         "recem_criado": bool(antes),
+        "link_cliente": link_whatsapp_cliente(pedido),
         "proximos_status": [(s, Pedido.Status(s).label) for s in Pedido.Status.values if s in proximos],
     })
 
