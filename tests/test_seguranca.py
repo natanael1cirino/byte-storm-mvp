@@ -75,6 +75,17 @@ def test_cabecalho_csp_presente(client):
 
 
 @pytest.mark.django_db
+def test_service_worker_servido_na_raiz_com_rede_primeiro(client):
+    resposta = client.get("/sw.js")
+    conteudo = resposta.content.decode()
+    assert resposta.status_code == 200
+    assert resposta["Content-Type"].startswith("application/javascript")
+    # Rede primeiro: busca a versão nova e só cai no cache se a conexão falhar.
+    assert "fetch(evento.request)" in conteudo
+    assert ".catch(() => caches.match(evento.request))" in conteudo
+
+
+@pytest.mark.django_db
 def test_catalogo_nao_expoe_dados_de_pedidos(client, socio, fone):
     Pedido.objects.create(cliente_nome="Cliente Sigiloso", cliente_telefone="35999990000",
                           forma_pagamento="pix", registrado_por=socio)
