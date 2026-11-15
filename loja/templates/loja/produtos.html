@@ -1,0 +1,18 @@
+{% extends "loja/painel_base.html" %}
+{% block titulo %}Produtos · {{ LOJA_NOME }}{% endblock %}
+{% block titulo_painel %}Produtos{% endblock %}
+{% block conteudo %}
+<section class="secao">
+  <a class="btn btn-primario" href="{% url 'loja:produto_novo' %}">+ Cadastrar produto</a>
+  <ul class="lista">
+    {% for p in produtos %}
+      <li><a href="{% url 'loja:produto_editar' p.pk %}">
+        <span><strong>{{ p.nome }}</strong><br>R$ {{ p.preco|floatformat:2 }} · {{ p.categoria }}{% if not p.ativo %} · oculto{% endif %}</span>
+        {% if p.esgotado %}<span class="selo selo-nao">✖ Esgotado</span>{% else %}<span class="selo selo-ok">✔ {{ p.quantidade_estoque }} em estoque</span>{% endif %}
+      </a></li>
+    {% empty %}
+      <li class="vazio">Nenhum produto cadastrado.</li>
+    {% endfor %}
+  </ul>
+</section>
+{% endblock %}

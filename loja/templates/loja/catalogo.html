@@ -1,0 +1,65 @@
+{% extends "loja/base.html" %}
+{% block titulo %}{{ LOJA_NOME }} · Catálogo{% endblock %}
+{% block topo %}
+<header class="loja-topo">
+  <div class="marca">
+    <span class="logo" aria-hidden="true">BS</span>
+    <div>
+      <h1>{{ LOJA_NOME }}</h1>
+      <p>Eletrônicos e acessórios · Três Corações</p>
+    </div>
+  </div>
+  <form class="busca" method="get" role="search">
+    {% if categoria_atual %}<input type="hidden" name="categoria" value="{{ categoria_atual.slug }}">{% endif %}
+    <label for="q">Buscar produto</label>
+    <div class="busca-linha">
+      <input id="q" name="q" type="search" value="{{ busca }}" placeholder="Ex.: fone, carregador, cabo" maxlength="60">
+      <button type="submit" class="btn btn-claro">Buscar</button>
+    </div>
+  </form>
+</header>
+{% endblock %}
+{% block conteudo %}
+<nav class="chips" aria-label="Categorias">
+  <a class="chip {% if not categoria_atual %}ativo{% endif %}" href="?{% if busca %}q={{ busca|urlencode }}{% endif %}" {% if not categoria_atual %}aria-current="page"{% endif %}>Todos</a>
+  {% for c in categorias %}
+    <a class="chip {% if categoria_atual == c %}ativo{% endif %}" href="?categoria={{ c.slug }}{% if busca %}&q={{ busca|urlencode }}{% endif %}" {% if categoria_atual == c %}aria-current="page"{% endif %}>{{ c.nome }}</a>
+  {% endfor %}
+</nav>
+
+{% if busca %}<p class="resultado-busca">Resultados para “{{ busca }}”</p>{% endif %}
+
+<ul class="grade">
+  {% for p in pagina %}
+    <li class="cartao {% if p.esgotado %}cartao-esgotado{% endif %}">
+      <div class="foto">
+        {% if p.foto %}<img src="{{ p.foto.url }}" alt="{{ p.nome }}" loading="lazy" width="400" height="300">
+        {% else %}<span class="foto-vazia" aria-hidden="true">{{ p.categoria.nome|slice:":1" }}</span>{% endif %}
+      </div>
+      <div class="cartao-corpo">
+        <h2>{{ p.nome }}</h2>
+        <p class="preco">R$ {{ p.preco|floatformat:2 }}</p>
+        {% if p.esgotado %}
+          <span class="selo selo-nao">✖ Esgotado</span>
+          <p class="indisponivel">Indisponível no momento</p>
+        {% else %}
+          <span class="selo selo-ok">✔ Disponível</span>
+          <a class="btn btn-whats" href="{{ p.link_whatsapp }}" target="_blank" rel="noopener">Comprar pelo WhatsApp</a>
+        {% endif %}
+      </div>
+    </li>
+  {% empty %}
+    <li class="vazio">Nenhum produto encontrado.</li>
+  {% endfor %}
+</ul>
+
+{% if pagina.has_other_pages %}
+<nav class="paginacao" aria-label="Páginas">
+  {% if pagina.has_previous %}<a class="btn btn-contorno" href="?pagina={{ pagina.previous_page_number }}{% if categoria_atual %}&categoria={{ categoria_atual.slug }}{% endif %}{% if busca %}&q={{ busca|urlencode }}{% endif %}">Anterior</a>{% endif %}
+  <span>Página {{ pagina.number }} de {{ pagina.paginator.num_pages }}</span>
+  {% if pagina.has_next %}<a class="btn btn-contorno" href="?pagina={{ pagina.next_page_number }}{% if categoria_atual %}&categoria={{ categoria_atual.slug }}{% endif %}{% if busca %}&q={{ busca|urlencode }}{% endif %}">Próxima</a>{% endif %}
+</nav>
+{% endif %}
+
+<footer class="rodape">Atendimento: seg. a sáb., 9h às 19h · Pagamento por Pix, dinheiro ou cartão na entrega</footer>
+{% endblock %}

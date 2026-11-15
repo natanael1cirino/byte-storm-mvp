@@ -1,0 +1,18 @@
+{% extends "loja/base.html" %}
+{% block body_class %}painel{% endblock %}
+{% block topo %}
+<header class="painel-topo">
+  <div>
+    <p class="painel-titulo">{% block titulo_painel %}Painel{% endblock %}</p>
+    <p class="painel-usuario">Logado como {{ user.first_name|default:user.username }}</p>
+  </div>
+  <form method="post" action="{% url 'loja:logout' %}">{% csrf_token %}<button class="btn btn-sair" type="submit">Sair</button></form>
+</header>
+<nav class="painel-menu" aria-label="Menu do painel">
+  <a href="{% url 'loja:painel' %}">Início</a>
+  <a href="{% url 'loja:novo_pedido' %}">Novo pedido</a>
+  <a href="{% url 'loja:pedidos' %}">Pedidos</a>
+  <a href="{% url 'loja:produtos' %}">Produtos</a>
+  <a href="{% url 'loja:relatorio' %}">Relatório</a>
+</nav>
+{% endblock %}

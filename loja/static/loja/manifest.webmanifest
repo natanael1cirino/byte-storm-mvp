@@ -1,0 +1,14 @@
+{
+  "name": "Byte Storm",
+  "short_name": "Byte Storm",
+  "description": "Catálogo, estoque e pedidos da Byte Storm",
+  "start_url": "/painel/",
+  "scope": "/",
+  "display": "standalone",
+  "background_color": "#f8fafc",
+  "theme_color": "#0f172a",
+  "lang": "pt-BR",
+  "icons": [
+    { "src": "/static/loja/icone.svg", "sizes": "any", "type": "image/svg+xml", "purpose": "any" }
+  ]
+}

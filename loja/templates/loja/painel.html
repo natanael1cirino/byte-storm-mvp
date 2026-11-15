@@ -1,0 +1,20 @@
+{% extends "loja/painel_base.html" %}
+{% block titulo %}Painel · {{ LOJA_NOME }}{% endblock %}
+{% block titulo_painel %}Início{% endblock %}
+{% block conteudo %}
+<section class="secao">
+  <a class="btn btn-primario btn-grande" href="{% url 'loja:novo_pedido' %}">+ Novo pedido</a>
+  <div class="indicadores">
+    <a class="indicador" href="{% url 'loja:pedidos' %}"><strong>{{ pedidos_abertos }}</strong><span>pedidos em aberto</span></a>
+    <a class="indicador" href="{% url 'loja:produtos' %}"><strong>{{ esgotados }}</strong><span>produtos esgotados</span></a>
+  </div>
+  <h2>Últimos pedidos</h2>
+  <ul class="lista">
+    {% for p in ultimos %}
+      <li><a href="{% url 'loja:pedido_detalhe' p.pk %}"><span>Nº {{ p.numero }} · {{ p.cliente_nome }}</span><span class="status status-{{ p.status }}">{{ p.get_status_display }}</span></a></li>
+    {% empty %}
+      <li class="vazio">Nenhum pedido registrado ainda.</li>
+    {% endfor %}
+  </ul>
+</section>
+{% endblock %}
