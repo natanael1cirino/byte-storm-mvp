@@ -50,6 +50,7 @@ python -m venv .venv
 .venv\Scripts\activate          # Windows  (Linux/macOS: source .venv/bin/activate)
 pip install -r requirements-dev.txt
 python manage.py migrate
+python manage.py createcachetable
 set DEMO_SENHA=uma-senha-de-teste  # Linux/macOS: export DEMO_SENHA=...
 python manage.py carregar_demo     # produtos fictícios + usuário socio.teste
 python manage.py runserver
@@ -71,7 +72,8 @@ O workflow `.github/workflows/ci.yml` roda lint, verificação de migrações, t
 
 Configuração por variáveis de ambiente (ver `.env.exemplo`); nenhuma chave ou senha fica no código.
 Hospedagem prevista: PythonAnywhere com MySQL. Passos: `pip install -r requirements.txt mysqlclient`,
-`python manage.py migrate`, `python manage.py collectstatic` e configuração do WSGI.
+`python manage.py migrate`, `python manage.py createcachetable`, `python manage.py collectstatic` e
+configuração do WSGI.
 
 ## Autor
 

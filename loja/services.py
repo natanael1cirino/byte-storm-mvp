@@ -37,12 +37,27 @@ class ItemSolicitado:
 
 # Fluxo de status (RF06): novo → pago → em entrega → entregue; cancelamento antes da entrega.
 TRANSICOES = {
-    Pedido.Status.NOVO: {Pedido.Status.PAGO, Pedido.Status.EM_ENTREGA, Pedido.Status.CANCELADO},
+    Pedido.Status.NOVO: {Pedido.Status.PAGO, Pedido.Status.CANCELADO},
     Pedido.Status.PAGO: {Pedido.Status.EM_ENTREGA, Pedido.Status.CANCELADO},
     Pedido.Status.EM_ENTREGA: {Pedido.Status.ENTREGUE, Pedido.Status.CANCELADO},
     Pedido.Status.ENTREGUE: set(),
     Pedido.Status.CANCELADO: set(),
 }
+
+# Dinheiro e cartão são cobrados na entrega: só esses pedidos podem sair sem estar pagos.
+PAGAMENTO_NA_ENTREGA = {Pedido.FormaPagamento.DINHEIRO, Pedido.FormaPagamento.CARTAO}
+
+
+def transicoes_permitidas(pedido):
+    """Status para os quais o pedido pode ir agora.
+
+    Pedidos por Pix precisam estar pagos antes de sair para entrega; pedidos
+    em dinheiro ou cartão podem sair direto, pois o pagamento acontece na entrega.
+    """
+    permitidas = set(TRANSICOES.get(pedido.status, set()))
+    if pedido.status == Pedido.Status.NOVO and pedido.forma_pagamento in PAGAMENTO_NA_ENTREGA:
+        permitidas.add(Pedido.Status.EM_ENTREGA)
+    return permitidas
 
 
 def registrar_pedido(*, usuario, cliente_nome, cliente_telefone, forma_pagamento, itens,
@@ -112,14 +127,14 @@ def alterar_status(pedido, novo_status):
     No cancelamento, as quantidades dos itens voltam ao estoque e o produto
     deixa de estar esgotado, se for o caso.
     """
-    if novo_status not in TRANSICOES.get(pedido.status, set()):
+    if novo_status not in transicoes_permitidas(pedido):
         raise TransicaoInvalida(
             f"Não é possível mudar de {pedido.get_status_display()} para {Pedido.Status(novo_status).label}."
         )
 
     with transaction.atomic():
         pedido = Pedido.objects.select_for_update().get(pk=pedido.pk)
-        if novo_status not in TRANSICOES.get(pedido.status, set()):
+        if novo_status not in transicoes_permitidas(pedido):
             raise TransicaoInvalida("O status do pedido foi alterado por outra pessoa. Atualize a página.")
         if novo_status == Pedido.Status.CANCELADO:
             for item in pedido.itens.select_related("produto"):
@@ -138,9 +153,9 @@ def relatorio_mensal(ano, mes, limite=5):
     faturamento = pedidos.aggregate(total=Sum("valor_total"))["total"] or Decimal("0")
     mais_vendidos = (
         ItemPedido.objects.filter(pedido__in=pedidos)
-        .values("produto__nome")
+        .values("produto_id", "produto__nome")  # agrupa pelo id: nomes iguais não se misturam
         .annotate(unidades=Sum("quantidade"), valor=Sum(F("quantidade") * F("preco_unitario")))
-        .order_by("-unidades", "produto__nome")[:limite]
+        .order_by("-unidades", "produto__nome", "produto_id")[:limite]
     )
     return {
         "faturamento": faturamento,

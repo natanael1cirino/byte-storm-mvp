@@ -110,6 +110,15 @@ SESSION_COOKIE_AGE = 8 * 60 * 60
 SESSION_COOKIE_HTTPONLY = True
 SESSION_COOKIE_SAMESITE = "Lax"
 
+# Cache no banco: compartilhado entre todos os processos do servidor, para o contador
+# de tentativas de login valer mesmo com vários workers (criar com createcachetable).
+CACHES = {
+    "default": {
+        "BACKEND": "django.core.cache.backends.db.DatabaseCache",
+        "LOCATION": "cache_django",
+    }
+}
+
 # Limite de tentativas de login (RNF01): 5 falhas em 15 minutos por usuário e IP.
 LOGIN_MAX_TENTATIVAS = 5
 LOGIN_JANELA_SEGUNDOS = 15 * 60
